@@ -22,16 +22,18 @@ enum PLANTS {
 
 struct field {
   enum PLANTS plants[5][10];
+  int cooldown[7];
 };
 
 void init_field(struct field* fld);
 
 void init(struct field* fld);
-void draw_field(struct field* fld, int* suns);
+void draw_field(struct field* fld, int* suns, enum PLANTS cur);
 
 int movement(int y, int x, struct field* fld, enum PLANTS* cur);
+enum PLANTS select(int y, int x, struct field* fld);
 
-void draw_plant(int y, int x, enum PLANTS type);
+void draw_plant(int y, int x, enum PLANTS type, int color);
 void draw_sunflower(int y, int x, int color);
 void draw_peanut(int y, int x, int color);
 void draw_cherry(int y, int x, int color);
