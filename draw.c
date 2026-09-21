@@ -1,9 +1,14 @@
 #include "draw.h"
 
 void init_field(struct field* fld) {
-  for (int i = 0; i < 5; ++i)
-    for (int j = 0; j < 10; ++j) fld->plants[i][j] = empty;
+  for (int i = 0; i < 5; ++i) {
+    for (int j = 0; j < 10; ++j) {
+      fld->plants[i][j] = empty;
+      fld->cycles[i][j] = 0;
+    }
+  }
   for (int i = 0; i < 7; ++i) fld->cooldown[i] = 0;
+  fld->sun_cycles = AUTO_SUN_CYCLE;
 }
 
 void init(struct field* fld) {
@@ -19,6 +24,7 @@ void init(struct field* fld) {
   init_pair(3, 0, COLOR_WHITE);
   init_pair(4, COLOR_RED, COLOR_BLACK);
   init_field(fld);
+  timeout(30);
 }
 
 void draw_field(struct field* fld, int* suns, enum PLANTS cur) {
@@ -35,13 +41,13 @@ void draw_field(struct field* fld, int* suns, enum PLANTS cur) {
   mvadd_wch(0, 1, &ch_w);
   mvprintw(0, 2, "%d", *suns);
 
-  mvprintw(1, 8, "%d", 50);
-  mvprintw(1, 11, "%d", 100);
-  mvprintw(1, 15, "%d", 100);
-  mvprintw(1, 19, "%d", 75);
-  mvprintw(1, 22, "%d", 50);
-  mvprintw(1, 25, "%d", 125);
-  mvprintw(1, 29, "%d", 300);
+  mvprintw(1, 8, "%d", SUNFLOWER_COST);
+  mvprintw(1, 11, "%d", PEAS_COST);
+  mvprintw(1, 15, "%d", CHERRY_COST);
+  mvprintw(1, 19, "%d", CACTUS_COST);
+  mvprintw(1, 22, "%d", NUT_COST);
+  mvprintw(1, 25, "%d", LETTUCE_COST);
+  mvprintw(1, 29, "%d", WATERMELON_COST);
 
   draw_sunflower(0, 7, 1 + (fld->cooldown[0] > 0));
   draw_peas(0, 10, 1 + (fld->cooldown[1] > 0));
@@ -68,9 +74,9 @@ void draw_field(struct field* fld, int* suns, enum PLANTS cur) {
   draw_plant(0, 50, cur, 3);
 }
 
-int movement(int y, int x, struct field* fld, enum PLANTS* cur) {
+int movement(int y, int x, struct field* fld, enum PLANTS* cur, int* sun) {
   if (y == 0) {
-    enum PLANTS picked = select(y, x, fld);
+    enum PLANTS picked = select(y, x, fld, *sun);
     if (picked != empty) *cur = picked;
     return 1;
   }
@@ -78,20 +84,34 @@ int movement(int y, int x, struct field* fld, enum PLANTS* cur) {
   if (x < 3 || x > 31) return 1;
   if ((x - 3) % 3 == 2) return 1;
   if (*cur == empty) return 1;
+  if (fld->plants[y - 3][(x - 3) / 3]) return 1;
   fld->plants[y - 3][(x - 3) / 3] = *cur;
+  if (*cur == sunflower)
+    fld->cycles[y - 3][(x - 3) / 3] = SUN_PROD_CYCLE_1;
+  else
+    fld->cycles[y - 3][(x - 3) / 3] = 0;
+  *sun -= cost(*cur);
+  fld->cooldown[(int)*cur - 1] = cooldown(*cur);
   *cur = empty;
   return 0;
 }
 
-enum PLANTS select(int y, int x, struct field* fld) {
+enum PLANTS select(int y, int x, struct field* fld, int sun) {
   if (y > 0) return empty;
-  if (x >= 8 && x <= 9 && fld->cooldown[0] <= 0) return sunflower;
-  if (x >= 11 && x <= 12 && fld->cooldown[1] <= 0) return peas;
-  if (x >= 15 && x <= 16 && fld->cooldown[2] <= 0) return cherry;
-  if (x >= 19 && x <= 20 && fld->cooldown[3] <= 0) return cactus;
-  if (x >= 22 && x <= 23 && fld->cooldown[4] <= 0) return nut;
-  if (x >= 25 && x <= 26 && fld->cooldown[5] <= 0) return lettuce;
-  if (x >= 29 && x <= 30 && fld->cooldown[6] <= 0) return watermelon;
+  if (x >= 8 && x <= 9 && fld->cooldown[0] <= 0 && sun >= SUNFLOWER_COST)
+    return sunflower;
+  if (x >= 11 && x <= 12 && fld->cooldown[1] <= 0 && sun >= PEAS_COST)
+    return peas;
+  if (x >= 15 && x <= 16 && fld->cooldown[2] <= 0 && sun >= CHERRY_COST)
+    return cherry;
+  if (x >= 19 && x <= 20 && fld->cooldown[3] <= 0 && sun >= CACTUS_COST)
+    return cactus;
+  if (x >= 22 && x <= 23 && fld->cooldown[4] <= 0 && sun >= NUT_COST)
+    return nut;
+  if (x >= 25 && x <= 26 && fld->cooldown[5] <= 0 && sun >= LETTUCE_COST)
+    return lettuce;
+  if (x >= 29 && x <= 30 && fld->cooldown[6] <= 0 && sun >= WATERMELON_COST)
+    return watermelon;
   return empty;
 }
 
@@ -118,8 +138,8 @@ void draw_plant(int y, int x, enum PLANTS type, int color) {
     case watermelon:
       draw_watermelon(y, x, color);
       break;
-    default:
-      break;
+    case empty:
+      draw_empty(y, x, color);
   }
 }
 
@@ -177,4 +197,81 @@ void draw_watermelon(int y, int x, int color) {
   setcchar(&ch_w, WATERMELON, A_NORMAL, 0, NULL);
   mvadd_wch(y, x, &ch_w);
   if (color) attroff(COLOR_PAIR(color));
+}
+
+void draw_empty(int y, int x, int color) {
+  if (color) attron(COLOR_PAIR(color));
+  mvprintw(y, x, "  ");
+  if (color) attroff(COLOR_PAIR(color));
+}
+
+int cost(enum PLANTS type) {
+  switch (type) {
+    case empty:
+      return 0;
+    case sunflower:
+      return SUNFLOWER_COST;
+    case peas:
+      return PEAS_COST;
+    case cherry:
+      return CHERRY_COST;
+    case cactus:
+      return CACTUS_COST;
+    case nut:
+      return NUT_COST;
+    case lettuce:
+      return LETTUCE_COST;
+    case watermelon:
+      return WATERMELON_COST;
+    default:
+      return 0;
+  }
+}
+
+int cooldown(enum PLANTS type) {
+  switch (type) {
+    case empty:
+      return 0;
+    case sunflower:
+      return FAST_CD;
+    case peas:
+      return FAST_CD;
+    case cherry:
+      return SLOW_CD;
+    case cactus:
+      return FAST_CD;
+    case nut:
+      return MIDDLE_CD;
+    case lettuce:
+      return FAST_CD;
+    case watermelon:
+      return FAST_CD;
+    default:
+      return 0;
+  }
+}
+
+void sun_cycle(struct field* fld, int* suns) {
+  for (int i = 0; i < 5; ++i) {
+    for (int j = 0; j < 10; ++j) {
+      if (fld->plants[i][j] == sunflower) {
+        if (fld->cycles[i][j] <= 0) {
+          *suns += 25;
+          fld->cycles[i][j] = SUN_PROD_CYCLE_2;
+        } else
+          fld->cycles[i][j] -= 1;
+      }
+    }
+  }
+  if (fld->sun_cycles <= 0) {
+    *suns += 25;
+    fld->sun_cycles = AUTO_SUN_CYCLE;
+  } else {
+    fld->sun_cycles -= 1;
+  }
+}
+
+void cooldown_cycle(struct field* fld) {
+  for (int i = 0; i < 7; ++i)
+    if (fld->cooldown[i] > 0) fld->cooldown[i]--;
 }

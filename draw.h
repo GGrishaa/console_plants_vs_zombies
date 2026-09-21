@@ -22,7 +22,9 @@ enum PLANTS {
 
 struct field {
   enum PLANTS plants[5][10];
+  int cycles[5][10];
   int cooldown[7];
+  int sun_cycles;
 };
 
 void init_field(struct field* fld);
@@ -30,8 +32,8 @@ void init_field(struct field* fld);
 void init(struct field* fld);
 void draw_field(struct field* fld, int* suns, enum PLANTS cur);
 
-int movement(int y, int x, struct field* fld, enum PLANTS* cur);
-enum PLANTS select(int y, int x, struct field* fld);
+int movement(int y, int x, struct field* fld, enum PLANTS* cur, int* sun);
+enum PLANTS select(int y, int x, struct field* fld, int sun);
 
 void draw_plant(int y, int x, enum PLANTS type, int color);
 void draw_sunflower(int y, int x, int color);
@@ -41,5 +43,12 @@ void draw_cactus(int y, int x, int color);
 void draw_nut(int y, int x, int color);
 void draw_lettuce(int y, int x, int color);
 void draw_watermelon(int y, int x, int color);
+void draw_empty(int y, int x, int color);
+
+int cost(enum PLANTS type);
+int cooldown(enum PLANTS type);
+
+void sun_cycle(struct field* fld, int* suns);
+void cooldown_cycle(struct field* fld);
 
 #endif
