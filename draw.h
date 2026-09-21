@@ -12,11 +12,11 @@
 enum PLANTS {
   empty = 0,
   sunflower = 1,
-  peanut = 2,
+  peas = 2,
   cherry = 3,
   cactus = 4,
   nut = 5,
-  latuce = 6,
+  lettuce = 6,
   watermelon = 7
 };
 
@@ -35,11 +35,11 @@ enum PLANTS select(int y, int x, struct field* fld);
 
 void draw_plant(int y, int x, enum PLANTS type, int color);
 void draw_sunflower(int y, int x, int color);
-void draw_peanut(int y, int x, int color);
+void draw_peas(int y, int x, int color);
 void draw_cherry(int y, int x, int color);
 void draw_cactus(int y, int x, int color);
 void draw_nut(int y, int x, int color);
-void draw_latuce(int y, int x, int color);
+void draw_lettuce(int y, int x, int color);
 void draw_watermelon(int y, int x, int color);
 
 #endif

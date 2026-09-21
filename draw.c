@@ -44,11 +44,11 @@ void draw_field(struct field* fld, int* suns, enum PLANTS cur) {
   mvprintw(1, 29, "%d", 300);
 
   draw_sunflower(0, 7, 1 + (fld->cooldown[0] > 0));
-  draw_peanut(0, 10, 1 + (fld->cooldown[1] > 0));
+  draw_peas(0, 10, 1 + (fld->cooldown[1] > 0));
   draw_cherry(0, 14, 1 + (fld->cooldown[2] > 0));
   draw_cactus(0, 18, 1 + (fld->cooldown[3] > 0));
   draw_nut(0, 21, 1 + (fld->cooldown[4] > 0));
-  draw_latuce(0, 24, 1 + (fld->cooldown[5] > 0));
+  draw_lettuce(0, 24, 1 + (fld->cooldown[5] > 0));
   draw_watermelon(0, 28, 1 + (fld->cooldown[6] > 0));
 
   for (int yy = 3; yy < 8; ++yy)
@@ -86,11 +86,11 @@ int movement(int y, int x, struct field* fld, enum PLANTS* cur) {
 enum PLANTS select(int y, int x, struct field* fld) {
   if (y > 0) return empty;
   if (x >= 8 && x <= 9 && fld->cooldown[0] <= 0) return sunflower;
-  if (x >= 11 && x <= 12 && fld->cooldown[1] <= 0) return peanut;
+  if (x >= 11 && x <= 12 && fld->cooldown[1] <= 0) return peas;
   if (x >= 15 && x <= 16 && fld->cooldown[2] <= 0) return cherry;
   if (x >= 19 && x <= 20 && fld->cooldown[3] <= 0) return cactus;
   if (x >= 22 && x <= 23 && fld->cooldown[4] <= 0) return nut;
-  if (x >= 25 && x <= 26 && fld->cooldown[5] <= 0) return latuce;
+  if (x >= 25 && x <= 26 && fld->cooldown[5] <= 0) return lettuce;
   if (x >= 29 && x <= 30 && fld->cooldown[6] <= 0) return watermelon;
   return empty;
 }
@@ -100,8 +100,8 @@ void draw_plant(int y, int x, enum PLANTS type, int color) {
     case sunflower:
       draw_sunflower(y, x, color);
       break;
-    case peanut:
-      draw_peanut(y, x, color);
+    case peas:
+      draw_peas(y, x, color);
       break;
     case cherry:
       draw_cherry(y, x, color);
@@ -112,8 +112,8 @@ void draw_plant(int y, int x, enum PLANTS type, int color) {
     case nut:
       draw_nut(y, x, color);
       break;
-    case latuce:
-      draw_latuce(y, x, color);
+    case lettuce:
+      draw_lettuce(y, x, color);
       break;
     case watermelon:
       draw_watermelon(y, x, color);
@@ -131,10 +131,10 @@ void draw_sunflower(int y, int x, int color) {
   if (color) attroff(COLOR_PAIR(color));
 }
 
-void draw_peanut(int y, int x, int color) {
+void draw_peas(int y, int x, int color) {
   cchar_t ch_w;
   if (color) attron(COLOR_PAIR(color));
-  setcchar(&ch_w, PEANUT, A_NORMAL, 0, NULL);
+  setcchar(&ch_w, PEAS, A_NORMAL, 0, NULL);
   mvadd_wch(y, x, &ch_w);
   if (color) attroff(COLOR_PAIR(color));
 }
@@ -163,10 +163,10 @@ void draw_nut(int y, int x, int color) {
   if (color) attroff(COLOR_PAIR(color));
 }
 
-void draw_latuce(int y, int x, int color) {
+void draw_lettuce(int y, int x, int color) {
   cchar_t ch_w;
   if (color) attron(COLOR_PAIR(color));
-  setcchar(&ch_w, LATUCE, A_NORMAL, 0, NULL);
+  setcchar(&ch_w, LETTUCE, A_NORMAL, 0, NULL);
   mvadd_wch(y, x, &ch_w);
   if (color) attroff(COLOR_PAIR(color));
 }

@@ -3,13 +3,15 @@
 
 #define SUN L"🔆"
 #define BRAIN L"🧠"
-#define SUNFLOWER L"🌻"
-#define PEANUT L"🌱"
+#define SUNFLOWER L"🌼"
+#define PEAS L"🌱"
 #define CHERRY L"🍒"
 #define CACTUS L"🌵"
 #define NUT L"🌰"
-#define LATUCE L"🥬"
+#define LETTUCE L"🥬"
 #define WATERMELON L"🍉"
+#define GARLIC L"🧄"
+#define PEPPER L"🌶️"
 #define ZOMBIE L"🧟"
 
 #endif
